@@ -52,7 +52,6 @@ def gen_header(in_file, h_path)
     out_file.puts ""
     out_file.puts "extern const unsigned char #{file_id}_SRC[];"
     out_file.puts "extern const size_t #{file_id}_LEN;"
-    out_file.puts ""
 
     out_file.close
 end
@@ -93,8 +92,8 @@ def gen_source(in_file, c_path)
 end
 
 def gen_output(h_path, c_path, in_path)
-    h_path += "/#{File.basename in_path}.h" if File.directory? h_path
-    c_path += "/#{File.basename in_path}.c" if File.directory? c_path
+    h_path = "#{h_path}/#{File.basename in_path}.h" if File.directory? h_path
+    c_path = "#{c_path}/#{File.basename in_path}.c" if File.directory? c_path
 
     h_path = in_path + ".h" if h_path.nil?
     c_path = in_path + ".c" if c_path.nil?
@@ -115,6 +114,6 @@ Kernel.abort "Buffer size must be multiple of bytes-per-line" if BUFFER_SIZE % B
 
 args = parse_args
 
-in_path = args[:input] || ARGV[0].strip
+in_path = args[:input] || ARGV[0]
 
-gen_output(args[:header], args[:source], in_path)
+gen_output(args[:header]&.strip, args[:source]&.strip, in_path.strip)
