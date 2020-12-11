@@ -93,6 +93,9 @@ def gen_source(in_file, c_path)
 end
 
 def gen_output(h_path, c_path, in_path)
+    h_path += "/#{File.basename in_path}.h" if File.directory? h_path
+    c_path += "/#{File.basename in_path}.c" if File.directory? c_path
+
     h_path = in_path + ".h" if h_path.nil?
     c_path = in_path + ".c" if c_path.nil?
 

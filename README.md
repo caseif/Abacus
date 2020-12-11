@@ -19,8 +19,9 @@ file containing the actual data.
 | `-h` | Path at which header file will be generated |
 | `-c` | Path at which source file will be generated |
 
-If the `-h` or `-c` flags are not supplied, they will be inferred from the input file name by appending `.h` or `.c`,
-respectively.
+If the `-h` or `-c` flags are not supplied, they will be inferred from the input file path by appending `.h` or `.c`,
+respectively. If either flag is a directory, its respective output will be generated in the directory with the file name
+being inferred from the input path.
 
 ## License
 
