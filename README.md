@@ -1,5 +1,6 @@
-# bin2c
+# Abacus
 
+*A*rgus *B*inary *A*sset *C*onversion *U*tility *S*cript.
 Dead simple Ruby script for converting binary files to C source.
 
 The script will generate a header containing a `extern` declarations for the data and length variables, and a C source
@@ -8,7 +9,7 @@ file containing the actual data.
 ## Usage
 
 ```shell
-./bin2c.rb <path/to/file.dat> [-h <path/to/resource.h>] [-c <path/to/resource.c>]
+./abacus.rb <path/to/file.dat> [-h <path/to/resource.h>] [-c <path/to/resource.c>]
 ```
 
 ## Arguments

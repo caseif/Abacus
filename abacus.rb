@@ -11,7 +11,7 @@ def parse_args()
     options = {}
 
     OptionParser.new do |opts|
-        opts.banner = "Usage: bin2c.rb [options]"
+        opts.banner = "Usage: abacus.rb [options]"
 
         opts.on("-h", "--header PATH", "Path to generated header file") do |h|
             options[:header] = h
@@ -33,7 +33,7 @@ end
 
 def get_file_id(in_file)
     file_name = File.basename in_file
-    
+
     file_id = file_name.upcase.gsub(/[^A-Z0-9_]/, "_")
 
     file_id = '_' + file_id if file_id[0] =~ /[0-9]/
@@ -70,17 +70,17 @@ def gen_source(in_file, c_path)
     while not in_file.eof?
         buf = in_file.read(BUFFER_SIZE)
         off += BUFFER_SIZE
-        
+
         (0...buf.size).step(BYTES_PER_LINE) { |i|
             line_bytes = buf[i...[i + BYTES_PER_LINE, buf.size].min]
             out_line = "    "
-            
+
             out_line += line_bytes.chars.map { |b|
                 "0x%02X" % b.ord
             }.join(", ")
 
             out_line += "," unless in_file.eof? and i + BYTES_PER_LINE >= buf.size
-            
+
             out_file.puts out_line
         }
     end
@@ -101,7 +101,7 @@ def gen_output(h_path, c_path, in_path)
     Kernel.abort "Input path does not point to a file" unless File.file? in_path
 
     Kernel.abort "Header path exists and is not a regular file" if File.exist? h_path and not File.file? h_path
-    
+
     Kernel.abort "Source path exists and is not a regular file" if File.exist? c_path and not File.file? c_path
 
     in_file = File.open(in_path, "rb")
