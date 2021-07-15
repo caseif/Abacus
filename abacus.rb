@@ -17,32 +17,38 @@ def parse_args()
             options[:header] = h
         end
 
-        opts.on("-c", "--source PATH", "Path to generated C source file") do |c|
+        opts.on("-s", "--source PATH", "Path to generated C source file") do |c|
             options[:source] = c
         end
 
         opts.on("-i", "--input PATH", "Path to input file") do |i|
             options[:input] = i
         end
+
+        opts.on("-n", "--name NAME", "Name of input file (including extension)") do |n|
+            options[:name] = n
+        end
     end.parse!
 
-    Kernel.abort "Input path is required (-i, --input)" if options[:input].nil? and (ARGV.empty? or ARGV[0].empty?)
+    options[:input] = ARGV[0] if options[:input].nil? and not ARGV.empty? and not ARGV[0].empty?
 
-    options
+    Kernel.abort "Input path is required when generating source file" if not options[:source].nil? and options[:input].nil?
+    Kernel.abort "Either input path or name must be provided" if options[:name].nil? and options[:input].nil?
+    Kernel.abort "Header and/or source path must be provided" if options[:header].nil? and options[:source].nil?
+
+    return options
 end
 
-def get_file_id(in_file)
-    file_name = File.basename in_file
-
+def get_file_id(file_name)
     file_id = file_name.upcase.gsub(/[^A-Z0-9_]/, "_")
 
     file_id = '_' + file_id if file_id[0] =~ /[0-9]/
 
-    file_id
+    return file_id
 end
 
-def gen_header(in_file, h_path)
-    file_id = get_file_id in_file
+def gen_header(file_name, h_path)
+    file_id = get_file_id file_name
 
     out_file = File.open(h_path, "w+")
 
@@ -56,8 +62,8 @@ def gen_header(in_file, h_path)
     out_file.close
 end
 
-def gen_source(in_file, c_path)
-    file_id = get_file_id in_file
+def gen_source(file_name, in_file, c_path)
+    file_id = get_file_id file_name
     file_len = in_file.size
 
     out_file = File.open(c_path, "w+")
@@ -91,29 +97,26 @@ def gen_source(in_file, c_path)
     out_file.close
 end
 
-def gen_output(h_path, c_path, in_path)
-    h_path = "#{h_path}/#{File.basename in_path}.h" if File.directory? h_path
-    c_path = "#{c_path}/#{File.basename in_path}.c" if File.directory? c_path
+def gen_output(h_path, c_path, in_path, in_name)
+    file_name = in_name || in_path.split('/')[-1]
 
-    h_path = in_path + ".h" if h_path.nil?
-    c_path = in_path + ".c" if c_path.nil?
+    full_h_path = "#{h_path}/#{file_name}.h" if not h_path.nil? and File.directory? h_path
+    full_c_path = "#{c_path}/#{file_name}.c" if not c_path.nil? and File.directory? c_path
 
-    Kernel.abort "Input path does not point to a file" unless File.file? in_path
+    Kernel.abort "Input path does not point to a file" unless in_path.nil? or File.file? in_path
 
-    Kernel.abort "Header path exists and is not a regular file" if File.exist? h_path and not File.file? h_path
+    Kernel.abort "Header path exists and is not a regular file" if not full_h_path.nil? and File.exist? full_h_path and
+            not File.file? full_h_path
 
-    Kernel.abort "Source path exists and is not a regular file" if File.exist? c_path and not File.file? c_path
+    Kernel.abort "Source path exists and is not a regular file" if not full_c_path.nil? and File.exist? full_c_path and
+            not File.file? full_c_path
 
-    in_file = File.open(in_path, "rb")
-
-    gen_header(in_file, h_path)
-    gen_source(in_file, c_path)
+    gen_header(file_name, full_h_path) if not full_h_path.nil?
+    gen_source(file_name, File.open(in_path, "rb"), full_c_path) if not full_c_path.nil?
 end
 
 Kernel.abort "Buffer size must be multiple of bytes-per-line" if BUFFER_SIZE % BYTES_PER_LINE != 0
 
 args = parse_args
 
-in_path = args[:input] || ARGV[0]
-
-gen_output(args[:header]&.strip, args[:source]&.strip, in_path.strip)
+gen_output(args[:header]&.strip, args[:source]&.strip, args[:input]&.strip, args[:name]&.strip)
