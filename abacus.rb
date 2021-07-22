@@ -52,12 +52,20 @@ def gen_header(file_name, h_path)
 
     out_file = File.open(h_path, "w+")
 
-    out_file.puts "#pragma once"
-    out_file.puts ""
-    out_file.puts "#include <stddef.h>"
-    out_file.puts ""
+    out_file.puts '#pragma once'
+    out_file.puts ''
+    out_file.puts '#include <stddef.h>'
+    out_file.puts ''
+    out_file.puts '#ifdef __cplusplus'
+    out_file.puts 'extern "C" {'
+    out_file.puts '#endif'
+    out_file.puts ''
     out_file.puts "extern const unsigned char #{file_id}_SRC[];"
     out_file.puts "extern const size_t #{file_id}_LEN;"
+    out_file.puts ''
+    out_file.puts '#ifdef __cplusplus'
+    out_file.puts '}'
+    out_file.puts '#endif'
 
     out_file.close
 end
