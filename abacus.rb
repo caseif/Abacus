@@ -108,8 +108,12 @@ end
 def gen_output(h_path, c_path, in_path, in_name)
     file_name = in_name || in_path.split('/')[-1]
 
-    full_h_path = "#{h_path}/#{file_name}.h" if not h_path.nil? and File.directory? h_path
-    full_c_path = "#{c_path}/#{file_name}.c" if not c_path.nil? and File.directory? c_path
+    full_h_path = (not h_path.nil? and h_path.end_with? ".h") ?
+            h_path :
+            ("#{h_path}/#{file_name}.h" if not h_path.nil? and File.directory? h_path)
+    full_c_path = (not c_path.nil? and c_path.end_with? ".c") ?
+            c_path :
+            ("#{c_path}/#{file_name}.c" if not c_path.nil? and File.directory? c_path)
 
     Kernel.abort "Input path does not point to a file" unless in_path.nil? or File.file? in_path
 
